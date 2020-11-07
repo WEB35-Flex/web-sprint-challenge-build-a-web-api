@@ -27,19 +27,11 @@ router.get("/", (req, res) => {
     });
 });
 
-router.get("/:id", (req, res) => {
-  const { id } = req.params;
-
-  Actions.get(id)
-    .then((a) => {
-      res.status(200).json(a);
-    })
-    .catch((err) => {
-      res.status(500).json({ error: err.message });
-    });
+router.get("/:id", validateId, (req, res) => {
+  res.status(200).json(req.actions);
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", validateId, (req, res) => {
   const { id } = req.params;
   const changes = req.body;
 
@@ -52,7 +44,7 @@ router.put("/:id", (req, res) => {
     });
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", validateId, (req, res) => {
   const { id } = req.params;
 
   Actions.remove(id)
@@ -63,5 +55,25 @@ router.delete("/:id", (req, res) => {
       res.status(500).json({ error: err.message });
     });
 });
+
+function validateId(req, res, next) {
+  const { id } = req.params;
+
+  Actions.get(id)
+    .then((p) => {
+      if (p) {
+        req.actions = p;
+
+        next();
+      } else {
+        res
+          .status(404)
+          .json({ message: `Action with id of ${id} does not exist.` });
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({ error: err.message });
+    });
+}
 
 module.exports = router;
