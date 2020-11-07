@@ -26,6 +26,18 @@ router.get("/", (req, res) => {
     });
 });
 
+router.get("/:id", (req, res) => {
+  const { id } = req.params;
+
+  Projects.get(id)
+    .then((p) => {
+      res.status(200).json(p);
+    })
+    .catch((err) => {
+      res.status(500).json({ error: err.message });
+    });
+});
+
 router.get("/:id/actions", (req, res) => {
   const { id } = req.params;
 
@@ -55,8 +67,8 @@ router.delete("/:id", (req, res) => {
   const { id } = req.params;
 
   Projects.remove(id)
-    .then((p) => {
-      res.status(200).json(p);
+    .then((count) => {
+      res.status(200).json(count);
     })
     .catch((err) => {
       res.status(500).json({ error: err.message });
